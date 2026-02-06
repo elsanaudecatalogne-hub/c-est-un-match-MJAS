@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { HospitalProfile, Match, UserPreferences } from '../types';
+import { HospitalProfile, Match, UserPreferences, AppStats } from '../types';
 import { dbGetLegalText, dbSaveLegalText, dbGetStats } from '../services/dbService';
 import { Building, MessageSquare, Save, User, MapPin, Clock, Sun, Search, Send, Briefcase, Image as ImageIcon, Video, CheckSquare, Square, Trash2, Plus, Users, Shield, Scale, FileText, BarChart3, TrendingUp, UserPlus, Eye } from 'lucide-react';
 
@@ -47,20 +47,32 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   // Legal Text State
   const [legalText, setLegalText] = useState('');
 
-  // Stats State
-  const [stats, setStats] = useState(dbGetStats());
+  // Fix: Initialize stats with a default object instead of a Promise to avoid type errors
+  const [stats, setStats] = useState<AppStats>({
+    totalLogins: 0,
+    totalRegistrations: 0,
+    totalMessages: 0,
+    hospitalViews: {}
+  });
 
   // Editing State
   const [editForm, setEditForm] = useState<HospitalProfile | null>(null);
 
+  // Fix: Correctly handle async fetching of stats inside useEffect
   useEffect(() => {
       // Load legal text and stats on mount
       setLegalText(dbGetLegalText());
-      setStats(dbGetStats());
+      
+      const fetchInitialStats = async () => {
+          const s = await dbGetStats();
+          setStats(s);
+      };
+      fetchInitialStats();
       
       // Refresh stats every time we enter the dashboard to be sure
-      const interval = setInterval(() => {
-          setStats(dbGetStats());
+      const interval = setInterval(async () => {
+          const s = await dbGetStats();
+          setStats(s);
       }, 5000); // Polling for live updates
       return () => clearInterval(interval);
   }, []);

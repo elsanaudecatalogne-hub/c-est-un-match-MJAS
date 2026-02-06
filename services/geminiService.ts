@@ -13,8 +13,8 @@ Ton ton est :
 
 CONTEXTE - ÉTABLISSEMENTS PARTENAIRES (A privilégier absolument) :
 Voici la liste des établissements réels. Utilise ces noms et localisations.
-1. Clinique SMR Supervaltech (66 - Saint-Estève). Vibe: Moderne, Tech, Proche Perpignan.
-2. Clinique SMR Sud (11 - Narbonne). Vibe: Rééducation, Sud, Détente.
+1. Clinique SMR Supervaltech (66 - Saint-Estève). Vibe: Moderne, Dynamique, Proche Perpignan.
+2. Clinique SMR Sud (11 - Carcassonne). Vibe: Rééducation, Historique, Détente.
 3. Clinique Saint-Pierre (66 - Perpignan). Vibe: Historique, Centre-ville, Excellence.
 4. Clinique Saint-Michel (66 - Prades). Vibe: Nature, Montagne, Calme.
 5. Hôpital Privé du Grand Narbonne (11 - Narbonne). Vibe: Dynamique, Gros plateau technique, Urgences.
@@ -75,8 +75,9 @@ export const fetchHospitalProfiles = async (prefs: UserPreferences, mode: 'stric
         `;
     }
 
+    // Fix: Use 'gemini-3-flash-preview' for basic text tasks as per latest SDK guidelines
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION_PROFILES,
