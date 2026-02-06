@@ -37,7 +37,7 @@ export interface ChatMessage {
   id: string;
   sender: 'user' | 'hospital';
   text: string;
-  timestamp: Date;
+  timestamp: string; // ISO string for easier database storage
 }
 
 export interface Match {
