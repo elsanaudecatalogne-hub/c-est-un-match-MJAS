@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './services/supabaseClient';
 import { HospitalProfile, Match, UserPreferences } from './types';
-import { fetchHospitalProfiles } from './services/geminiService';
+import { HOSPITALS_DATA } from './services/hospitalsData';
 import { 
   dbGetHospitals, dbSaveHospitals, dbUpdateHospital, dbAddHospital, dbDeleteHospital,
   dbGetMatches, dbSaveMatch, dbUpdateMatch, dbGetSessionUser, dbSaveUser,
@@ -85,8 +85,41 @@ export default function App() {
   };
 
   const refreshData = async (prefs: UserPreferences) => {
-    const dbProfiles = await dbGetHospitals();
-    setProfiles(dbProfiles);
+    // Use fixed hospitals data instead of database
+    const hospitalsWithScores = HOSPITALS_DATA.map((hospital) => {
+      let matchScore = 50;
+
+      if (prefs.preferred_size && hospital.size.includes(prefs.preferred_size)) {
+        matchScore += 20;
+      }
+
+      if (prefs.preferred_region_vibe) {
+        const vibe = prefs.preferred_region_vibe.toLowerCase();
+        const hospitalVibe = hospital.region_vibe.toLowerCase();
+        if (hospitalVibe.includes(vibe)) {
+          matchScore += 15;
+        }
+      }
+
+      if (prefs.specialty && hospital.specialty_focus.some(s => 
+        s.toLowerCase().includes(prefs.specialty.toLowerCase())
+      )) {
+        matchScore += 15;
+      }
+
+      const distance_km = Math.floor(Math.random() * 50) + 5;
+
+      return {
+        ...hospital,
+        match_percentage: Math.min(matchScore, 99),
+        distance_km,
+      } as HospitalProfile;
+    });
+
+    // Sort by match percentage
+    hospitalsWithScores.sort((a, b) => b.match_percentage - a.match_percentage);
+    
+    setProfiles(hospitalsWithScores);
     const dbMatches = await dbGetMatches();
     setMatches(dbMatches);
     if (prefs.isAdmin) {
